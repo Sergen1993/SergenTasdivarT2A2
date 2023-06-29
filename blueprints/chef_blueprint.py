@@ -24,5 +24,3 @@ def get_chef(chef_id):
     if chef:
         return jsonify(chef.serialize())
     return jsonify(message='Chef not found'), 404
-
-# Add other chef routes for update, delete, and additional operations
