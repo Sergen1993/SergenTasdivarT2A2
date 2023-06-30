@@ -1,17 +1,16 @@
-from database import db
+from app import db
+from marshmallow import Schema, fields
 
 class Vendor(db.Model):
     __tablename__ = 'vendors'
-
-    id = db.Column(db.String(64), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    address = db.Column(db.String(500))
-    email = db.Column(db.String(100), unique=True, nullable=False)
 
-    def serialize(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'address': self.address,
-            'email': self.email
-        }
+    def __init__(self, name):
+        self.name = name
+
+class VendorSchema(Schema):
+    id = fields.Int(dump_only=True)
+    name = fields.Str(required=True)
+
+vendor_schema = VendorSchema()

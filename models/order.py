@@ -1,18 +1,22 @@
-from database import db
+from app import db
+from marshmallow import Schema, fields
 
 class Order(db.Model):
     __tablename__ = 'orders'
+    id = db.Column(db.Integer, primary_key=True)
+    chef_id = db.Column(db.Integer, db.ForeignKey('chefs.id'), nullable=False)
+    inventory_item_id = db.Column(db.Integer, db.ForeignKey('inventory_items.id'), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
 
-    id = db.Column(db.String(64), primary_key=True)
-    chef_id = db.Column(db.String(64), db.ForeignKey('chefs.id'), nullable=False)
-    vendor_id = db.Column(db.String(64), db.ForeignKey('vendors.id'), nullable=False)
+    def __init__(self, chef_id, inventory_item_id, quantity):
+        self.chef_id = chef_id
+        self.inventory_item_id = inventory_item_id
+        self.quantity = quantity
 
-    chef = db.relationship('Chef', backref='orders', lazy=True)
-    vendor = db.relationship('Vendor', backref='orders', lazy=True)
+class OrderSchema(Schema):
+    id = fields.Int(dump_only=True)
+    chef_id = fields.Int(required=True)
+    inventory_item_id = fields.Int(required=True)
+    quantity = fields.Int(required=True)
 
-    def serialize(self):
-        return {
-            'id': self.id,
-            'chef_id': self.chef_id,
-            'vendor_id': self.vendor_id
-        }
+order_schema = OrderSchema()
