@@ -1,5 +1,5 @@
 from app import db
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
 
 class Order(db.Model):
     __tablename__ = 'orders'
@@ -17,6 +17,6 @@ class OrderSchema(Schema):
     id = fields.Int(dump_only=True)
     chef_id = fields.Int(required=True)
     inventory_item_id = fields.Int(required=True)
-    quantity = fields.Int(required=True)
+    quantity = fields.Int(required=True, validate=validate.Range(min=1))
 
 order_schema = OrderSchema()

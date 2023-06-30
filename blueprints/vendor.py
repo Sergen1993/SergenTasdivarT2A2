@@ -1,32 +1,56 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from models.vendor import Vendor, VendorSchema
 
 vendor_bp = Blueprint('vendor_bp', __name__)
+
 vendor_schema = VendorSchema()
+vendors_schema = VendorSchema(many=True)
 
 @vendor_bp.route('/vendors', methods=['GET'])
-@jwt_required()
 def get_vendors():
-    chef_id = get_jwt_identity()
-    vendors = Vendor.query.filter_by(chef_id=chef_id).all()
-    return vendor_schema.jsonify(vendors, many=True)
+    vendors = Vendor.query.all()
+    return vendors_schema.jsonify(vendors)
 
 @vendor_bp.route('/vendors', methods=['POST'])
-@jwt_required()
 def create_vendor():
-    chef_id = get_jwt_identity()
-    name = request.json.get('name')
-    address = request.json.get('address')
+    name = request.json['name']
+    address = request.json.get('address', None)
 
-    if not name or not address:
-        return jsonify({'message': 'Name and address are required'}), 400
+    new_vendor = Vendor(name, address)
 
-    vendor = Vendor(chef_id=chef_id, name=name, address=address)
-    db.session.add(vendor)
+    db.session.add(new_vendor)
     db.session.commit()
 
-    return jsonify({'message': 'Vendor created successfully!'})
+    return vendor_schema.jsonify(new_vendor)
 
-# Other vendor routes...
+@vendor_bp.route('/vendors/<int:id>', methods=['GET'])
+def get_vendor(id):
+    vendor = Vendor.query.get(id)
+    if not vendor:
+        return jsonify({'message': 'Vendor not found'}), 404
+    return vendor_schema.jsonify(vendor)
+
+@vendor_bp.route('/vendors/<int:id>', methods=['PUT'])
+def update_vendor(id):
+    vendor = Vendor.query.get(id)
+    if not vendor:
+        return jsonify({'message': 'Vendor not found'}), 404
+
+    vendor.name = request.json.get('name', vendor.name)
+    vendor.address = request.json.get('address', vendor.address)
+
+    db.session.commit()
+
+    return vendor_schema.jsonify(vendor)
+
+@vendor_bp.route('/vendors/<int:id>', methods=['DELETE'])
+def delete_vendor(id):
+    vendor = Vendor.query.get(id)
+    if not vendor:
+        return jsonify({'message': 'Vendor not found'}), 404
+
+    db.session.delete(vendor)
+    db.session.commit()
+
+    return jsonify({'message': 'Vendor deleted'})
