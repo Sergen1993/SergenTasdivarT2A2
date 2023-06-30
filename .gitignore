@@ -1,26 +1,12 @@
-# Ignore Python virtual environment
-venv
-
-# Ignore compiled Python files
+.venv
 *.pyc
 __pycache__
-
-# Ignore IDE or editor specific files
-.vscode/
-.idea/
-
-# Ignore local development configuration files
+.env
+.vscode
+.idea
 config.py
-
-# Ignore log files
 *.log
-
-# Ignore database files
 *.db
-
-# Ignore package installation files
 *.lock
-
-# Ignore operating system files
 .DS_Store
 Thumbs.db
